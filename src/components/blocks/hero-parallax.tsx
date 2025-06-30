@@ -107,10 +107,14 @@ export const Header = () => {
       <h1 className="text-xl md:text-4xl font-bold dark:text-white">
         Gishinge Elie (Lee Elie) <br/>
         Visual Storyteller & Creative Director
+        
       </h1>
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-       Bringing ideas to life through cinematic visuals, bold edits, and captivating narratives.
-From concept to screen — I turn moments into lasting impressions.
+        <strong><b><u>INTRUCTIONS</u></b></strong>
+        <br />
+       <strong>Click on the video below to Download the video we had some technical issues if you could navigate down and hower around the web you can see the video once you click on them
+        they will be Downloaded  and again sorry for the inconvenience</strong>
+       
       </p>
     </div>
   );
