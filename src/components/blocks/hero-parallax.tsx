@@ -1,6 +1,4 @@
-// app/KnowMe/HeroParallax.tsx
 "use client";
-
 import React from "react";
 import {
   motion,
@@ -17,13 +15,12 @@ export const HeroParallax = ({
   products: {
     title: string;
     link: string;
-    thumbnail: string; // video URL
+    thumbnail: string; // This is now a video URL
   }[];
 }) => {
-  // ────────────────────────────────────
-  // ▸ Take exactly the first 9 videos
-  // ────────────────────────────────────
-  const visible = products.slice(0, 9);
+  const firstRow = products.slice(0, 5);
+  const secondRow = products.slice(5, 10);
+  const thirdRow = products.slice(10, 15);
 
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
@@ -31,74 +28,129 @@ export const HeroParallax = ({
     offset: ["start start", "end start"],
   });
 
-  const spring = { stiffness: 300, damping: 30, bounce: 100 };
+  const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
 
-  // A gentle X parallax for the whole grid
   const translateX = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, 600]),
-    spring
+    useTransform(scrollYProgress, [0, 1], [0, 1000]),
+    springConfig
+  );
+  const translateXReverse = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0, -1000]),
+    springConfig
+  );
+  const rotateX = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [15, 0]),
+    springConfig
+  );
+  const opacity = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
+    springConfig
+  );
+  const rotateZ = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [20, 0]),
+    springConfig
+  );
+  const translateY = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [-700, 500]),
+    springConfig
   );
 
   return (
     <div
       ref={ref}
-      className="h-[250vh] py-40 overflow-hidden antialiased relative flex flex-col [perspective:1000px] [transform-style:preserve-3d]"
+      className="h-[300vh] py-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
     >
       <Header />
-
-      {/* 3 × 3 grid */}
       <motion.div
-        style={{ x: translateX }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-10 mx-auto"
+        style={{
+          rotateX,
+          rotateZ,
+          translateY,
+          opacity,
+        }}
       >
-        {visible.map((product) => (
-          <ProductCard product={product} key={product.title} />
-        ))}
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
+          {firstRow.map((product) => (
+            <ProductCard
+              product={product}
+              translate={translateX}
+              key={product.title}
+            />
+          ))}
+        </motion.div>
+        <motion.div className="flex flex-row mb-20 space-x-20">
+          {secondRow.map((product) => (
+            <ProductCard
+              product={product}
+              translate={translateXReverse}
+              key={product.title}
+            />
+          ))}
+        </motion.div>
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
+          {thirdRow.map((product) => (
+            <ProductCard
+              product={product}
+              translate={translateX}
+              key={product.title}
+            />
+          ))}
+        </motion.div>
       </motion.div>
     </div>
   );
 };
 
-/* ―― Header remains unchanged ――――――――――――――――――――――――――――――――― */
-export const Header = () => (
-  <div className="max-w-7xl mx-auto py-20 md:py-40 px-4 w-full">
-    <h1 className="text-xl md:text-4xl font-bold dark:text-white">
-      Gishinge Elie (Lee Elie) <br />
-      Visual Storyteller & Creative Director
-    </h1>
-    <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-      Bringing ideas to life through cinematic visuals, bold edits, and
-      captivating narratives. From concept to screen — I turn moments into
-      lasting impressions.
-    </p>
-  </div>
-);
+export const Header = () => {
+  return (
+    <div className="max-w-7xl relative mx-auto py-20 md:py-40 px-4 w-full left-0 top-0">
+      <h1 className="text-xl md:text-4xl font-bold dark:text-white">
+        Gishinge Elie (Lee Elie) <br/>
+        Visual Storyteller & Creative Director
+      </h1>
+      <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
+       Bringing ideas to life through cinematic visuals, bold edits, and captivating narratives.
+From concept to screen — I turn moments into lasting impressions.
+      </p>
+    </div>
+  );
+};
 
-/* ―― Individual video card ――――――――――――――――――――――――――――――――――― */
 export const ProductCard = ({
   product,
+  translate,
 }: {
-  product: { title: string; link: string; thumbnail: string };
-}) => (
-  <motion.div
-    whileHover={{ y: -15 }}
-    className="group relative h-80 w-full rounded-lg overflow-hidden shadow-lg"
-  >
-    <Link href={product.link} className="block h-full w-full">
-      <video
-        src={product.thumbnail}
-        className="object-cover object-center h-full w-full"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
-    </Link>
-
-    {/* Darken + title on hover */}
-    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity" />
-    <h2 className="absolute bottom-4 left-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-      {product.title}
-    </h2>
-  </motion.div>
-);
+  product: {
+    title: string;
+    link: string;
+    thumbnail: string; // now a video link
+  };
+  translate: MotionValue<number>;
+}) => {
+  return (
+    <motion.div
+      style={{ x: translate }}
+      whileHover={{ y: -20 }}
+      key={product.title}
+      className="group/product h-96 w-[30rem] relative flex-shrink-0"
+    >
+      <Link
+        href={product.link}
+        className="block group-hover/product:shadow-2xl"
+      >
+        <video
+          src={product.thumbnail}
+          className="object-cover object-center absolute h-full w-full inset-0"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      </Link>
+      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none" />
+      <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
+        {product.title}
+      </h2>
+    </motion.div>
+  );
+};
